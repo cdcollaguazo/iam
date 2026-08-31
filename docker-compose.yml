@@ -1,0 +1,48 @@
+# Local docker-compose.yml file
+
+services:
+  keycloak-db:
+    container_name: keycloak-db
+    image: postgres:18.0
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak-data:/var/lib/postgresql/18/docker
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
+  keycloak:
+    container_name: keycloak
+    build:
+      context: .
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: dev
+      KC_BOOTSTRAP_ADMIN_PASSWORD: dev
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: dev
+      KC_DB_PASSWORD: dev
+    command: "start-dev"
+    ports:
+      - 8080:8080
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+
+volumes:
+  keycloak-data:
+    driver: local
+
+networks:
+  keycloak-network:
+    driver: bridge
