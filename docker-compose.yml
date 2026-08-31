@@ -1,6 +1,16 @@
 # Local docker-compose.yml file
 
 services:
+  keycloak-mail:
+    container_name: keycloak-mail
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
   keycloak-db:
     container_name: keycloak-db
     image: postgres:18.0
@@ -13,7 +23,8 @@ services:
     ports:
       - 5433:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
+      start_period: 10s
     networks:
       - keycloak-network
     restart: unless-stopped
@@ -29,14 +40,40 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: dev
       KC_DB_PASSWORD: dev
+      KC_HEALTH_ENABLED: true
     command: "start-dev"
     ports:
       - 8080:8080
+      - 9000:9000
+    healthcheck:
+      test: ["CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"]
+      start_period: 30s
     networks:
       - keycloak-network
     restart: unless-stopped
     depends_on:
       keycloak-db:
+        condition: service_healthy
+
+  keycloak-config:
+    container_name: keycloak-config
+    image: adorsys/keycloak-config-cli:6.5.1-26.1.0
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_USER: dev
+      KEYCLOAK_PASSWORD: dev
+      IMPORT_FILES_LOCATIONS: /config/*
+      IMPORT_VARSUBSTITUTION_ENABLED: true
+      IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR: false
+      BSN_URL: http://localhost:4200
+      MAIL_HOST: keycloak-mail
+      MAIL_PORT: 1025
+    volumes:
+      - ./realm:/config
+    networks:
+      - keycloak-network
+    depends_on:
+      keycloak:
         condition: service_healthy
 
 volumes:
