@@ -51,4 +51,4 @@ jobs:
           cd infra
 
           echo "Starting compilation..."          
-          ../../mvnw clean compile
+          ../mvnw clean compile

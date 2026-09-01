@@ -45,7 +45,7 @@ jobs:
           cd infra
 
           echo "Building Infra jar..."
-          ../../mvnw clean package
+          ../mvnw clean package
           echo "Infra jar built successfully"
 
           echo "Synthesizing CloudFormation templates with Infra jar..."
