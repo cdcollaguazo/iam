@@ -7,8 +7,8 @@
     <groupId>com.cdcollaguazo.iam</groupId>
     <artifactId>event-listener</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Event Listener</name>
-    <description>Custom Keycloak Event Listener</description>
+    <name>Keycloak Event Listener</name>
+    <description>Custom Keycloak event listener provider for user events.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
