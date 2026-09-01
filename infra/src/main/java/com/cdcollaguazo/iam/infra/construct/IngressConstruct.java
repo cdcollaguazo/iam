@@ -16,8 +16,7 @@ import software.constructs.Construct;
 
 import java.util.List;
 
-import static com.cdcollaguazo.iam.infra.config.EnvironmentConfig.HOSTED_ZONE_ID;
-import static com.cdcollaguazo.iam.infra.config.EnvironmentConfig.MAIN_DOMAIN;
+import static com.cdcollaguazo.iam.infra.config.EnvironmentConfig.*;
 
 public class IngressConstruct extends Construct {
 
@@ -30,12 +29,12 @@ public class IngressConstruct extends Construct {
         IHostedZone hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone",
                 HostedZoneAttributes.builder()
                         .hostedZoneId(HOSTED_ZONE_ID)
-                        .zoneName(MAIN_DOMAIN)
+                        .zoneName(MAIN_HOST)
                         .build());
 
         // Certificate
         Certificate certificate = Certificate.Builder.create(this, "Certificate")
-                .domainName(IAM_PREFIX + "." + MAIN_DOMAIN)
+                .domainName(IAM_PREFIX + "." + MAIN_HOST)
                 .validation(CertificateValidation.fromDns(hostedZone))
                 .build();
 
