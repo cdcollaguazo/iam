@@ -128,7 +128,7 @@ jobs:
           set -eu
 
           echo "Deploying config..."
-          docker run --rm \ 
+          docker run --rm \
             -e KEYCLOAK_URL="https://${{ vars.KEYCLOAK_HOST }}" \
             -e KEYCLOAK_USER="${{ secrets.KEYCLOAK_ADMIN_USER }}" \
             -e KEYCLOAK_PASSWORD="${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
