@@ -1,0 +1,141 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-infra:
+    name: Build Infra
+    runs-on: ubuntu-24.04
+    environment: Cloud
+    outputs:
+      tag_version: ${{ steps.tag-version.outputs.version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Extract Tag Version
+        id: tag-version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Build CloudFormation Stack
+        env:
+          KEYCLOAK_DB_USER: ${{ secrets.KEYCLOAK_DB_USER }}
+          HOSTED_ZONE_ID: ${{ vars.HOSTED_ZONE_ID }}
+          MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN }}
+          BSN_USERS_API_URL: ${{ vars.BSN_USERS_API_URL }}
+          KEYCLOAK_HOST: ${{ vars.KEYCLOAK_HOST }}
+          KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
+          KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+          REPOSITORY_NAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          TAG_VERSION: ${{ steps.tag-version.outputs.version }}
+        run: |
+          set -eu
+          chmod +x mvnw
+          cd infra
+
+          echo "Building Infra jar..."
+          ../mvnw clean package
+          echo "Infra jar built successfully"
+
+          echo "Synthesizing CloudFormation templates with Infra jar..."
+          java -jar target/cdk-1.0-SNAPSHOT.jar
+          echo "Synthesis completed"
+
+      - name: Upload CloudFormation Stack
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-out
+          path: infra/cdk.out
+
+  publish-keycloak:
+    name: Publish Keycloak
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Image to DockerHub
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ needs.build-infra.outputs.tag_version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:latest
+
+  deploy-infra:
+    name: Deploy Infra
+    runs-on: ubuntu-24.04
+    needs: [build-infra, publish-keycloak]
+    steps:
+      - name: Download CloudFormation Stack
+        uses: actions/download-artifact@v8
+        with:
+          name: cdk-out
+          path: infra/cdk.out
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy CloudFormation Stack
+        run: |
+          set -eu
+          cd infra
+
+          echo "Deploying Iam..."
+          aws cloudformation deploy \
+            --stack-name Iam \
+            --template-file cdk.out/Iam.template.json \
+            --capabilities CAPABILITY_IAM
+          echo "Iam deployed successfully"
+
+  deploy-config:
+    name: Deploy Config
+    runs-on: ubuntu-24.04
+    needs: deploy-infra
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run Keycloak Config CLI
+        run: |
+          set -eu
+
+          echo "Deploying config..."
+          docker run --rm \ 
+            -e KEYCLOAK_URL="https://${{ vars.KEYCLOAK_HOST }}" \
+            -e KEYCLOAK_USER="${{ secrets.KEYCLOAK_ADMIN_USER }}" \
+            -e KEYCLOAK_PASSWORD="${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
+            -e IMPORT_FILES_LOCATIONS=/config/* \
+            -e IMPORT_VARSUBSTITUTION_ENABLED=true \
+            -e BSN_URL="${{ vars.BSN_URL }}" \
+            -e MAIL_HOST="${{ vars.MAIL_HOST }}" \
+            -e MAIL_PORT="${{ vars.MAIL_PORT }}" \
+            -e MAIL_SSL=true \
+            -e MAIL_START_TLS=true \
+            -e MAIL_AUTH=true \
+            -e MAIL_USER="${{ secrets.MAIL_USER }}" \
+            -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
+            -v "${{ github.workspace }}/realm:/config:ro" \
+            adorsys/keycloak-config-cli:6.5.1-26.1.0

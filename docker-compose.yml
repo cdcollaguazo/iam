@@ -65,7 +65,7 @@ services:
       MAIL_HOST: mail
       MAIL_PORT: 1025
     volumes:
-      - ./realm:/config
+      - ./realm:/config:ro
     networks:
       - iam
     depends_on:
