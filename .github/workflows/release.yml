@@ -3,24 +3,22 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 jobs:
   build-infra:
     name: Build Infra
     runs-on: ubuntu-24.04
-    environment: Cloud
-    outputs:
-      tag_version: ${{ steps.tag-version.outputs.version }}
+    environment: AWS
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-
       - name: Extract Tag Version
         id: tag-version
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Code
+        uses: actions/checkout@v6
 
       - name: Setup JDK
         uses: actions/setup-java@v5
@@ -32,8 +30,8 @@ jobs:
         env:
           KEYCLOAK_DB_USER: ${{ secrets.KEYCLOAK_DB_USER }}
           HOSTED_ZONE_ID: ${{ vars.HOSTED_ZONE_ID }}
-          MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN }}
-          BSN_USERS_API_URL: ${{ vars.BSN_USERS_API_URL }}
+          MAIN_HOST: ${{ vars.MAIN_HOST }}
+          BSN_USERS_API_URL: https://${{ vars.BSN_HOST }}${{ vars.BSN_USERS_API_PATH }}
           KEYCLOAK_HOST: ${{ vars.KEYCLOAK_HOST }}
           KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
           KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
@@ -49,7 +47,7 @@ jobs:
           echo "Infra jar built successfully"
 
           echo "Synthesizing CloudFormation templates with Infra jar..."
-          java -jar target/cdk-1.0-SNAPSHOT.jar
+          java -jar target/infra-1.0-SNAPSHOT.jar
           echo "Synthesis completed"
 
       - name: Upload CloudFormation Stack
@@ -62,6 +60,12 @@ jobs:
     name: Publish Keycloak
     runs-on: ubuntu-24.04
     steps:
+      - name: Extract Tag Version
+        id: tag-version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Checkout Code
         uses: actions/checkout@v6
 
@@ -78,7 +82,7 @@ jobs:
           file: Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ needs.build-infra.outputs.tag_version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ steps.tag-version.outputs.version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:latest
 
   deploy-infra:
     name: Deploy Infra
@@ -114,6 +118,7 @@ jobs:
     name: Deploy Config
     runs-on: ubuntu-24.04
     needs: deploy-infra
+    environment: AWS
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -129,7 +134,7 @@ jobs:
             -e KEYCLOAK_PASSWORD="${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
             -e IMPORT_FILES_LOCATIONS=/config/* \
             -e IMPORT_VARSUBSTITUTION_ENABLED=true \
-            -e BSN_URL="${{ vars.BSN_URL }}" \
+            -e BSN_URL="https://${{ vars.BSN_HOST }}" \
             -e MAIL_HOST="${{ vars.MAIL_HOST }}" \
             -e MAIL_PORT="${{ vars.MAIL_PORT }}" \
             -e MAIL_SSL=true \
