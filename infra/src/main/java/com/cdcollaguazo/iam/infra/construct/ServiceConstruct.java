@@ -36,15 +36,6 @@ public class ServiceConstruct extends Construct {
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .build();
 
-        ISecret mailSecret = software.amazon.awscdk.services.secretsmanager.Secret.Builder.create(this, "MailSecret")
-                .secretName("iam-mail")
-                .secretObjectValue(Map.of(
-                        "username", SecretValue.Builder.create(MAIL_USER).build(),
-                        "password", SecretValue.Builder.create(MAIL_PASSWORD).build()
-                ))
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .build();
-
         // ECS
         Cluster cluster = Cluster.Builder.create(this, "EcsCluster")
                 .clusterName("iam")

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  event-listener-compile:
+    runs-on: ubuntu-24.04
+    name: Compile project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Compile project
+        run: |
+          set -eu
+          chmod +x mvnw
+          cd spi/event-listener
+
+          echo "Starting compilation..."          
+          ../../mvnw clean compile
+
+  infra-compile:
+    runs-on: ubuntu-24.04
+    name: Compile project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Compile project
+        run: |
+          set -eu
+          chmod +x mvnw
+          cd infra
+
+          echo "Starting compilation..."          
+          ../../mvnw clean compile

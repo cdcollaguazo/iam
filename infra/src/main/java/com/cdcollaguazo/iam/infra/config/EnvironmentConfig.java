@@ -9,10 +9,6 @@ public class EnvironmentConfig {
     public static final String HOSTED_ZONE_ID = System.getenv("HOSTED_ZONE_ID");
     public static final String MAIN_DOMAIN = System.getenv("MAIN_DOMAIN");
 
-    // Mail
-    public static final String MAIL_USER =  System.getenv("MAIL_USER");
-    public static final String MAIL_PASSWORD =  System.getenv("MAIL_PASSWORD");
-
     // URLs
     public static final String BSN_USERS_API_URL = System.getenv("BSN_USERS_API_URL");
 
