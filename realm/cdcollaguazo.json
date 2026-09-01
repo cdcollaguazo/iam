@@ -2,7 +2,7 @@
   "id": "85f5cc7e-ad81-4050-8fd4-b2887323ab01",
   "realm": "cdcollaguazo",
   "displayName": "Carlos Collaguazo",
-  "displayNameHtml": "Carlos Collaguazo IAM",
+  "displayNameHtml": "<big>${realm.iamText}</big><hr><small>Carlos Collaguazo</small>",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -78,6 +78,9 @@
             "uma_authorization"
           ],
           "client": {
+            "bsn": [
+              "USER_ROLE"
+            ],
             "account": [
               "manage-account",
               "view-profile"
@@ -316,7 +319,17 @@
           "attributes": {}
         }
       ],
-      "bsn": [],
+      "bsn": [
+        {
+          "id": "89ddca9a-077e-4a88-b73d-07cc12a3dd99",
+          "name": "USER_ROLE",
+          "description": "Role for regular users.",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "6f5f03eb-607f-498b-a261-f8070ae68a14",
+          "attributes": {}
+        }
+      ],
       "account": [
         {
           "id": "3e517211-f53d-446b-bc5a-3ae07c869387",
@@ -432,7 +445,15 @@
     "totpAppMicrosoftAuthenticatorName"
   ],
   "localizationTexts": {
-    "en": {}
+    "fi": {
+      "realm.iamText": "Identiteetin- ja pääsynhallinta"
+    },
+    "en": {
+      "realm.iamText": "Identity and Access Management"
+    },
+    "es": {
+      "realm.iamText": "Gestión de identidades y accesos"
+    }
   },
   "webAuthnPolicyRpEntityName": "keycloak",
   "webAuthnPolicySignatureAlgorithms": [
