@@ -7,13 +7,13 @@ public class ConfigLoader {
     public static Config loadConfig() {
         return new Config(
                 required("PLATFORM_NAME"),
+                required("PLATFORM_URL"),
                 required("BOOTSTRAP_IMAGE"),
                 required("KEYCLOAK_IMAGE"),
                 required("KEYCLOAK_DB_USER"),
                 required("KEYCLOAK_ADMIN_USER"),
                 required("KEYCLOAK_ADMIN_PASSWORD"),
-                required("KEYCLOAK_HOST"),
-                required("BSN_USERS_API_URL")
+                required("BSN_USERS_API_ENDPOINT")
         );
     }
 

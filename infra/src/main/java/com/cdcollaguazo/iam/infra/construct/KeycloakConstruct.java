@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class KeycloakConstruct extends Construct {
 
-    private static final String RELATIVE_PATH = "/auth";
+    private static final String CONTEXT = "auth";
 
     public KeycloakConstruct(Construct scope, String id, IVpc vpc, ICluster cluster, ISecurityGroup ecsSg,
                              IApplicationListener albListener, ISecret dbSecret, String rdsHost, String rdsPort, Config config) {
@@ -65,11 +65,11 @@ public class KeycloakConstruct extends Construct {
                         Map.of(
                                 "KC_DB", "postgres",
                                 "KC_DB_URL", jdbcUrl,
-                                "KC_HOSTNAME", config.keycloakHost(),
+                                "KC_HOSTNAME", config.platformUrl() + "/" + CONTEXT,
                                 "KC_HTTP_ENABLED", "true",
-                                "KC_HTTP_RELATIVE_PATH", RELATIVE_PATH,
+                                "KC_HTTP_RELATIVE_PATH", "/" + CONTEXT,
                                 "KC_HEALTH_ENABLED", "true",
-                                "BSN_USERS_API_URL", config.bsnUsersApiUrl()
+                                "BSN_USERS_API_URL", config.platformUrl() + "/" + config.bsnUsersApiEndpoint()
                         )
                 )
                 .secrets(
@@ -118,7 +118,7 @@ public class KeycloakConstruct extends Construct {
                 .healthCheck(HealthCheck.builder()
                         .protocol(software.amazon.awscdk.services.elasticloadbalancingv2.Protocol.HTTP)
                         .port("9000")
-                        .path(RELATIVE_PATH + "/health/ready")
+                        .path("/" + CONTEXT + "/health/ready")
                         .healthyThresholdCount(3)
                         .unhealthyThresholdCount(3)
                         .timeout(Duration.seconds(55))
@@ -134,7 +134,7 @@ public class KeycloakConstruct extends Construct {
                 .priority(100)
                 .conditions(List.of(
                         ListenerCondition.pathPatterns(
-                                List.of("/auth", "/auth/*"))
+                                List.of("/" + CONTEXT , "/" + CONTEXT + "/*"))
                         )
                 )
                 .targetGroups(List.of(targetGroup))

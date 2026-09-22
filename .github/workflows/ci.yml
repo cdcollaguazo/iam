@@ -89,13 +89,13 @@ jobs:
       - name: Synth CloudFormation templates
         env:
           PLATFORM_NAME: example
+          PLATFORM_URL: https://www.example.com
           BOOTSTRAP_IMAGE: example/bootstrap:latest
           KEYCLOAK_IMAGE: example/keycloak:latest
           KEYCLOAK_DB_USER: dummy
           KEYCLOAK_ADMIN_USER: dummy
           KEYCLOAK_ADMIN_PASSWORD: dummy
-          KEYCLOAK_HOST: www.example.com/auth
-          BSN_USERS_API_URL: www.example.com/bsn/api/v1/users
+          BSN_USERS_API_ENDPOINT: bsn/api/v1/users
         run: |
           cd infra
           java -jar target/infra-1.0-SNAPSHOT.jar

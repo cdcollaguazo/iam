@@ -34,13 +34,13 @@ jobs:
       - name: Synth CloudFormation templates
         env:
           PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
+          PLATFORM_URL: ${{ vars.PLATFORM_URL }}
           BOOTSTRAP_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ steps.tag-version.outputs.version }}
           KEYCLOAK_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ steps.tag-version.outputs.version }}
           KEYCLOAK_DB_USER: ${{ secrets.KEYCLOAK_DB_USER }}
           KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
           KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
-          KEYCLOAK_HOST: ${{ vars.KEYCLOAK_URL }}
-          BSN_USERS_API_URL: ${{ vars.BSN_USERS_API_URL }}
+          BSN_USERS_API_ENDPOINT: ${{ vars.BSN_CONTEXT }}/${{ vars.BSN_USERS_API_PATH }}
         run: |
           cd infra
           java -jar target/infra-1.0-SNAPSHOT.jar
@@ -206,13 +206,13 @@ jobs:
       - name: Apply realm config
         run: |
           docker run --rm \
-            -e KEYCLOAK_URL="{{ vars.KEYCLOAK_URL }}" \
+            -e KEYCLOAK_URL="${{ vars.PLATFORM_URL }}/auth" \
             -e KEYCLOAK_USER="${{ secrets.KEYCLOAK_ADMIN_USER }}" \
             -e KEYCLOAK_PASSWORD="${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
             -e IMPORT_FILES_LOCATIONS=/config/* \
             -e IMPORT_VARSUBSTITUTION_ENABLED=true \
-            -e PLATFORM_NAME="https://${{ vars.PLATFORM_NAME }}" \
-            -e BSN_URL="${{ vars.BSN_URL }}" \
+            -e PLATFORM_NAME="${{ vars.PLATFORM_NAME }}" \
+            -e BSN_URL="${{ vars.PLATFORM_URL }}/${{ vars.BSN_CONTEXT }}" \
             -e MAIL_HOST="${{ vars.MAIL_HOST }}" \
             -e MAIL_PORT="${{ vars.MAIL_PORT }}" \
             -e MAIL_SSL=true \
