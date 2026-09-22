@@ -11,7 +11,7 @@ on:
 jobs:
   test-event-listener:
     runs-on: ubuntu-24.04
-    name: Build project
+    name: Build event listener
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -52,7 +52,7 @@ jobs:
 
   test-infra:
     runs-on: ubuntu-24.04
-    name: Build project
+    name: Test infra
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -70,7 +70,7 @@ jobs:
 
   build-infra:
     runs-on: ubuntu-24.04
-    name: Build project
+    name: Build infra
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

@@ -81,7 +81,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ steps.tag-version.outputs.version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:latest
 
   build-keycloak:
-    name: Publish Keycloak
+    name: Build Keycloak
     runs-on: ubuntu-24.04
     environment: Prod
     steps:

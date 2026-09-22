@@ -20,6 +20,8 @@ import java.util.Map;
 
 public class KeycloakConstruct extends Construct {
 
+    private static final String RELATIVE_PATH = "/auth";
+
     public KeycloakConstruct(Construct scope, String id, IVpc vpc, ICluster cluster, ISecurityGroup ecsSg,
                              IApplicationListener albListener, ISecret dbSecret, String rdsHost, String rdsPort, Config config) {
         super(scope, id);
@@ -65,7 +67,7 @@ public class KeycloakConstruct extends Construct {
                                 "KC_DB_URL", jdbcUrl,
                                 "KC_HOSTNAME", config.keycloakHost(),
                                 "KC_HTTP_ENABLED", "true",
-                                "KC_HTTP_RELATIVE_PATH", config.keycloakRelativePath(),
+                                "KC_HTTP_RELATIVE_PATH", RELATIVE_PATH,
                                 "KC_HEALTH_ENABLED", "true",
                                 "BSN_USERS_API_URL", config.bsnUsersApiUrl()
                         )
@@ -116,7 +118,7 @@ public class KeycloakConstruct extends Construct {
                 .healthCheck(HealthCheck.builder()
                         .protocol(software.amazon.awscdk.services.elasticloadbalancingv2.Protocol.HTTP)
                         .port("9000")
-                        .path(config.keycloakRelativePath() + "/health/ready")
+                        .path(RELATIVE_PATH + "/health/ready")
                         .healthyThresholdCount(3)
                         .unhealthyThresholdCount(3)
                         .timeout(Duration.seconds(55))

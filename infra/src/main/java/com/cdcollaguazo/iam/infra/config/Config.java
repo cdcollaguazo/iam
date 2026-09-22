@@ -8,7 +8,6 @@ public record Config(
         String keycloakAdminUser,
         String keycloakAdminPassword,
         String keycloakHost,
-        String keycloakRelativePath,
         String bsnUsersApiUrl
 ) {
 }

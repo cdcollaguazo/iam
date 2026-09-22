@@ -13,7 +13,6 @@ public class ConfigLoader {
                 required("KEYCLOAK_ADMIN_USER"),
                 required("KEYCLOAK_ADMIN_PASSWORD"),
                 required("KEYCLOAK_HOST"),
-                required("KEYCLOAK_RELATIVE_PATH"),
                 required("BSN_USERS_API_URL")
         );
     }
