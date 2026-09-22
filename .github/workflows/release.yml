@@ -135,7 +135,7 @@ jobs:
             --template-file infra/cdk.out/IamBootstrap.template.json \
             --capabilities CAPABILITY_IAM
 
-      - name: Run bootstrap Task
+      - name: Run bootstrap task
         env:
           PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
         run: |
@@ -209,7 +209,7 @@ jobs:
             -e KEYCLOAK_URL="${{ vars.PLATFORM_URL }}/auth" \
             -e KEYCLOAK_USER="${{ secrets.KEYCLOAK_ADMIN_USER }}" \
             -e KEYCLOAK_PASSWORD="${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
-            -e IMPORT_FILES_LOCATIONS=/config/* \
+            -e IMPORT_FILES_LOCATIONS='/config/*.json' \
             -e IMPORT_VARSUBSTITUTION_ENABLED=true \
             -e PLATFORM_NAME="${{ vars.PLATFORM_NAME }}" \
             -e BSN_URL="${{ vars.PLATFORM_URL }}/${{ vars.BSN_CONTEXT }}" \
@@ -220,5 +220,5 @@ jobs:
             -e MAIL_AUTH=true \
             -e MAIL_USER="${{ secrets.MAIL_USER }}" \
             -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
-            -v "${{ github.workspace }}/realm:/config:ro" \
+            -v "${{ github.workspace }}/realm":/config \
             adorsys/keycloak-config-cli:6.5.1-26.1.0
