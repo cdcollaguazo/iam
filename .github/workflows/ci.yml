@@ -9,46 +9,93 @@ on:
       - main
 
 jobs:
-  event-listener-compile:
+  test-event-listener:
     runs-on: ubuntu-24.04
-    name: Compile project
+    name: Build project
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup JDK
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'corretto'
+          distribution: 'temurin'
           java-version: '21'
 
-      - name: Compile project
+      - name: Run unit tests
         run: |
-          set -eu
-          chmod +x mvnw
           cd spi/event-listener
+          mvn -B verify
 
-          echo "Starting compilation..."          
-          ../../mvnw clean compile
-
-  infra-compile:
+  build-keycloak:
     runs-on: ubuntu-24.04
-    name: Compile project
+    name: Build Keycloak
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup JDK
+      - name: Build image
+        run: |
+          docker build .
+
+  build-bootstrap:
+    runs-on: ubuntu-24.04
+    name: Build bootstrap
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build image
+        run: |
+          cd database
+          docker build .
+
+  test-infra:
+    runs-on: ubuntu-24.04
+    name: Build project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'corretto'
+          distribution: 'temurin'
           java-version: '21'
 
-      - name: Compile project
+      - name: Run unit tests
         run: |
-          set -eu
-          chmod +x mvnw
           cd infra
+          mvn -B verify
 
-          echo "Starting compilation..."          
-          ../mvnw clean compile
+  build-infra:
+    runs-on: ubuntu-24.04
+    name: Build project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Package application
+        run: |
+          cd infra
+          mvn clean package
+
+      - name: Synth CloudFormation templates
+        env:
+          PLATFORM_NAME: example
+          BOOTSTRAP_IMAGE: example/bootstrap:latest
+          KEYCLOAK_IMAGE: example/keycloak:latest
+          KEYCLOAK_DB_USER: dummy
+          KEYCLOAK_ADMIN_USER: dummy
+          KEYCLOAK_ADMIN_PASSWORD: dummy
+          KEYCLOAK_HOST: www.example.com/auth
+          BSN_USERS_API_URL: www.example.com/bsn/api/v1/users
+        run: |
+          cd infra
+          java -jar target/infra-1.0-SNAPSHOT.jar

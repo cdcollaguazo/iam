@@ -55,6 +55,7 @@ services:
     container_name: config
     image: adorsys/keycloak-config-cli:6.5.1-26.1.0
     environment:
+      PLATFORM_NAME: local
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_USER: dev
       KEYCLOAK_PASSWORD: dev

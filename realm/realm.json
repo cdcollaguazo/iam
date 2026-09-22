@@ -1,8 +1,8 @@
 {
   "id": "85f5cc7e-ad81-4050-8fd4-b2887323ab01",
-  "realm": "cdcollaguazo",
-  "displayName": "Carlos Collaguazo",
-  "displayNameHtml": "<big>${realm.iamText}</big><hr><small>Carlos Collaguazo</small>",
+  "realm": "$(env:PLATFORM_NAME)",
+  "displayName": "$(env:PLATFORM_NAME)",
+  "displayNameHtml": "<big>${realm.iamText}</big><hr><small>$(env:PLATFORM_NAME)</small>",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -69,7 +69,7 @@
       },
       {
         "id": "7b3d81fa-624f-4a20-b058-7787831fde07",
-        "name": "default-roles-cdcollaguazo",
+        "name": "default-roles-$(env:PLATFORM_NAME)",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -423,7 +423,7 @@
   "groups": [],
   "defaultRole": {
     "id": "7b3d81fa-624f-4a20-b058-7787831fde07",
-    "name": "default-roles-cdcollaguazo",
+    "name": "default-roles-$(env:PLATFORM_NAME)",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
@@ -508,13 +508,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/cdcollaguazo/account/",
+      "baseUrl": "/realms/$(env:PLATFORM_NAME)/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/cdcollaguazo/account/*"
+        "/realms/$(env:PLATFORM_NAME)/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -555,13 +555,13 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/cdcollaguazo/account/",
+      "baseUrl": "/realms/$(env:PLATFORM_NAME)/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/cdcollaguazo/account/*"
+        "/realms/$(env:PLATFORM_NAME)/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -796,13 +796,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/cdcollaguazo/console/",
+      "baseUrl": "/admin/$(env:PLATFORM_NAME)/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/cdcollaguazo/console/*"
+        "/admin/$(env:PLATFORM_NAME)/console/*"
       ],
       "webOrigins": [
         "+"
@@ -1578,8 +1578,8 @@
     "port": "$(env:MAIL_PORT)",
     "host": "$(env:MAIL_HOST)",
     "replyTo": "",
-    "from": "contact@cdcollaguazo.com",
-    "fromDisplayName": "Carlos Collaguazo Support",
+    "from": "contact@$(env:PLATFORM_NAME).com",
+    "fromDisplayName": "$(env:PLATFORM_NAME) Support",
     "authType": "basic",
     "user": "$(env:MAIL_USER)"
   },
