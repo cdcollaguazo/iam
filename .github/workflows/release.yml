@@ -115,6 +115,9 @@ jobs:
     needs: [build-infra, build-bootstrap, build-keycloak]
     environment: Prod
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Download CloudFormation templates
         uses: actions/download-artifact@v8
         with:
