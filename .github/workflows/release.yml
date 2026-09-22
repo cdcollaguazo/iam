@@ -4,19 +4,37 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        type: string
+        description: 'Tag to release (e.g. v1.2.0)'
 
 jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      tag-version: ${{ steps.tag-version.outputs.version }}
+    steps:
+      - name: Resolve tag
+        id: tag-version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
   build-infra:
     name: Build infra
     runs-on: ubuntu-24.04
     environment: Prod
+    needs: prepare
     steps:
-      - name: Extract tag version
-        id: tag-version
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Checkout code
         uses: actions/checkout@v6
 
@@ -35,8 +53,8 @@ jobs:
         env:
           PLATFORM_NAME: ${{ vars.PLATFORM_NAME }}
           PLATFORM_URL: ${{ vars.PLATFORM_URL }}
-          BOOTSTRAP_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ steps.tag-version.outputs.version }}
-          KEYCLOAK_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ steps.tag-version.outputs.version }}
+          BOOTSTRAP_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ needs.prepare.outputs.tag-version }}
+          KEYCLOAK_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ needs.prepare.outputs.tag-version }}
           KEYCLOAK_DB_USER: ${{ secrets.KEYCLOAK_DB_USER }}
           KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
           KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
@@ -55,13 +73,8 @@ jobs:
     name: Build bootstrap
     runs-on: ubuntu-24.04
     environment: Prod
+    needs: prepare
     steps:
-      - name: Extract tag version
-        id: tag-version
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Checkout code
         uses: actions/checkout@v6
 
@@ -78,19 +91,14 @@ jobs:
           file: ./database/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ steps.tag-version.outputs.version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:${{ needs.prepare.outputs.tag-version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-bootstrap:latest
 
   build-keycloak:
     name: Build Keycloak
     runs-on: ubuntu-24.04
     environment: Prod
+    needs: prepare
     steps:
-      - name: Extract tag version
-        id: tag-version
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Checkout Code
         uses: actions/checkout@v6
 
@@ -107,7 +115,7 @@ jobs:
           file: Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ steps.tag-version.outputs.version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:${{ needs.prepare.outputs.tag-version }}, ${{ secrets.DOCKERHUB_USERNAME }}/iam-keycloak:latest
 
   deploy:
     name: Deploy
