@@ -40,7 +40,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.cdcollaguazo.iam.infra.IacApp</mainClass>
+                                    <mainClass>com.cdcollaguazo.iam.infra.IamApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
