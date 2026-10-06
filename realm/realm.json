@@ -1571,7 +1571,7 @@
     "debug": "false",
     "replyToDisplayName": "",
     "starttls": "$(env:MAIL_START_TLS)",
-    "auth": "(env:MAIL_AUTH)",
+    "auth": "$(env:MAIL_AUTH)",
     "envelopeFrom": "",
     "ssl": "$(env:MAIL_SSL)",
     "password": "$(env:MAIL_PASSWORD)",

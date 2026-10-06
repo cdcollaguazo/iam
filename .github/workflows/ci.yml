@@ -11,7 +11,7 @@ on:
 jobs:
   test-event-listener:
     runs-on: ubuntu-24.04
-    name: Build event listener
+    name: Test event listener
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -35,8 +35,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build image
-        run: |
-          docker build .
+        run: docker build .
 
   build-bootstrap:
     runs-on: ubuntu-24.04
