@@ -22,7 +22,7 @@ public class KeycloakConstruct extends Construct {
 
     private static final String CONTEXT = "auth";
 
-    public KeycloakConstruct(Construct scope, String id, IVpc vpc, ICluster cluster, ISecurityGroup ecsSg,
+    public KeycloakConstruct(Construct scope, String id, IVpc vpc, ICluster ecsCluster, ISecurityGroup ecsSg,
                              IApplicationListener albListener, ISecret dbSecret, String rdsHost, String rdsPort, Config config) {
         super(scope, id);
 
@@ -89,7 +89,7 @@ public class KeycloakConstruct extends Construct {
 
         FargateService ecs = FargateService.Builder.create(this, "Ecs")
                 .serviceName("iam-keycloak")
-                .cluster(cluster)
+                .cluster(ecsCluster)
                 .taskDefinition(taskDefinition)
                 .desiredCount(1)
                 .availabilityZoneRebalancing(AvailabilityZoneRebalancing.ENABLED)
