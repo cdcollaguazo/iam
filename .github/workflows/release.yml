@@ -223,6 +223,7 @@ jobs:
             -e IMPORT_FILES_LOCATIONS='/config/*.json' \
             -e IMPORT_VARSUBSTITUTION_ENABLED=true \
             -e PLATFORM_NAME="${{ vars.PLATFORM_NAME }}" \
+            -e PLATFORM_URL="${{ vars.PLATFORM_URL }}" \
             -e BSN_URL="${{ vars.PLATFORM_URL }}/${{ vars.BSN_CONTEXT }}" \
             -e MAIL_HOST="${{ vars.MAIL_HOST }}" \
             -e MAIL_PORT="${{ vars.MAIL_PORT }}" \

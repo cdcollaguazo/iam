@@ -563,7 +563,9 @@
       "redirectUris": [
         "/realms/$(env:PLATFORM_NAME)/account/*"
       ],
-      "webOrigins": [],
+      "webOrigins": [
+        "$(env:PLATFORM_URL)"
+      ],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -700,7 +702,7 @@
       "description": "Client for Book Social Network",
       "rootUrl": "$(env:BSN_URL)",
       "adminUrl": "$(env:BSN_URL)",
-      "baseUrl": "",
+      "baseUrl": "$(env:BSN_URL)",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
